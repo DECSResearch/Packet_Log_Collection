@@ -23,6 +23,6 @@ def read_file():
 
 
 
-run_tcpdump()
+#run_tcpdump()
 read_file()
 	
