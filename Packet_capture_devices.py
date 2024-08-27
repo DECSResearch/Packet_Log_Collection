@@ -20,6 +20,7 @@ def read_file():
     count=0
     tcpdump_data = []
     current_entry = {}
+    payload_lines = []
 
     for line in lines:
         line=line.lstrip()
@@ -27,8 +28,10 @@ def read_file():
             r'(\d{2}:\d{2}:\d{2}\.\d{6}) (\S+) +(\S+) +IP.+proto (\S+) \(\d+\), length (\d+)\)', line)
         #ip_match = re.match(r'(\S+)\.(\S+) > (\S+)\.(\S+): Flags \[(.+)\]', line)
         ip_match = re.match(r'(\S+) > (\S+): Flags \[(.+)\]', line)
+        payload_match = re.match(r'^\s*0x[0-9a-f]{4}:\s+([0-9a-f\s]+)', line)
         if basic_info_match:
             if current_entry:
+                current_entry['payload'] = ' '.join(payload_lines).replace(' ', '')
                 tcpdump_data.append(current_entry)
                 current_entry = {}
 
@@ -44,8 +47,10 @@ def read_file():
                 current_entry['dst_ip'] = ip_match.group(2)
                 current_entry['flags'] = "["+ip_match.group(3)
         else:
-            continue
+            if payload_match:
+                payload_lines.append(payload_match.group(1))
     if current_entry:
+        current_entry['payload'] = ' '.join(payload_lines).replace(' ', '')
         tcpdump_data.append(current_entry)
 
     for entry in tcpdump_data:
@@ -57,6 +62,7 @@ def read_file():
         print(f"Protocol: {entry['protocol']}")
         print(f"Packet Length: {entry['length']}")
         print(f"Flags: {entry['flags']}")
+        print(f"Payload: {entry['payload']}")
         print("-" * 40)
     print(count)
 
