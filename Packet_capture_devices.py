@@ -1,5 +1,6 @@
 import subprocess
 import re
+from connection import *
 
 
 def run_tcpdump():
@@ -17,7 +18,6 @@ def run_tcpdump():
 def read_file():
     f=open("output.txt","r")
     lines=f.readlines()
-    count=0
     tcpdump_data = []
     current_entry = {}
     payload_lines = []
@@ -34,6 +34,7 @@ def read_file():
                 current_entry['payload'] = ' '.join(payload_lines).replace(' ', '')
                 tcpdump_data.append(current_entry)
                 current_entry = {}
+                payload_lines = []
 
             current_entry['timestamp'] = basic_info_match.group(1)
             current_entry['interface'] = basic_info_match.group(2)
@@ -53,21 +54,37 @@ def read_file():
         current_entry['payload'] = ' '.join(payload_lines).replace(' ', '')
         tcpdump_data.append(current_entry)
 
-    for entry in tcpdump_data:
-        print(f"Timestamp: {entry['timestamp']}")
-        print(f"Interface: {entry['interface']}")
-        print(f"Direction: {entry['direction']}")
-        print(f"Source IP: {entry['src_ip']}")
-        print(f"Destination IP: {entry['dst_ip']}")
-        print(f"Protocol: {entry['protocol']}")
-        print(f"Packet Length: {entry['length']}")
-        print(f"Flags: {entry['flags']}")
-        print(f"Payload: {entry['payload']}")
-        print("-" * 40)
-    print(count)
+    return tcpdump_data
 
+    #for entry in tcpdump_data:
+    #    print(f"Timestamp: {entry['timestamp']}")
+    #    print(f"Interface: {entry['interface']}")
+    #    print(f"Direction: {entry['direction']}")
+    #    print(f"Source IP: {entry['src_ip']}")
+    #    print(f"Destination IP: {entry['dst_ip']}")
+    #    print(f"Protocol: {entry['protocol']}")
+    #    print(f"Packet Length: {entry['length']}")
+    #    print(f"Flags: {entry['flags']}")
+    #    print(f"Payload: {entry['payload']}")
+    #    print("-" * 40)
+
+def write_to_mongo():
+    for entry in tcpdump_data:
+        a_document = {
+            "timestamp": entry['timestamp'],
+            "interface": entry['interface'],
+            "direction": entry['direction'],
+            "src_ip": entry.get('src_ip'),
+            "dst_ip": entry.get('dst_ip'),
+            "protocol": entry['protocol'],
+            "length": entry['length'],
+            "flags": entry.get('flags'),
+            "payload": entry.get('payload')
+        }
+        collection.insert_one(a_document)
 
 
 #run_tcpdump()
-read_file()
+tcpdump_data = read_file()
+write_to_mongo(tcpdump_data)
 	
