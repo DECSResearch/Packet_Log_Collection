@@ -74,12 +74,12 @@ def write_to_mongo():
             "timestamp": entry['timestamp'],
             "interface": entry['interface'],
             "direction": entry['direction'],
-            "src_ip": entry.get('src_ip'),
-            "dst_ip": entry.get('dst_ip'),
+            "src_ip": entry['src_ip'],
+            "dst_ip": entry['dst_ip'],
             "protocol": entry['protocol'],
             "length": entry['length'],
-            "flags": entry.get('flags'),
-            "payload": entry.get('payload')
+            "flags": entry['flags'],
+            "payload": entry['payload']
         }
         collection.insert_one(a_document)
 
