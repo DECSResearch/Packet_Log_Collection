@@ -5,7 +5,7 @@ from connection import *
 
 def run_tcpdump():
     print('Running TCPdump ....')
-    cmd = ['timeout','2','sudo','tcpdump','-i','any','-vvv','-x']
+    cmd = ['timeout','200','sudo','tcpdump','-i','any','-vvv','-x']
     try:
         f = open("output.txt", "w")
         proc1 = subprocess.run(cmd, stdout=f,timeout=4)
